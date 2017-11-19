@@ -1,0 +1,8 @@
+{
+  "name": "MusicList",
+  "version": "0.1.0",
+  "description": "Musiclist Project",
+  "main": "index.js",
+  "author": "Ugo",
+  "license": "MIT"
+}
