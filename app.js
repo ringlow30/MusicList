@@ -1,22 +1,22 @@
-const express = require('express');
-const path = require('path');
-const favicon = require('serve-favicon');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+require('babel-register');
 
-const passport = require('passport');
+const appConfig = require('./config.js');
 const LocalStrategy = require('passport-local').Strategy;
-
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const express = require('express');
 const expressSession = require('express-session')({
-  secret: 'some random string goes there',
+  secret: appConfig.expressSession.secret,
   resave: false,
   saveUninitialized: false,
 });
-
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const path = require('path');
 const webpack = require('webpack');
-const webpackConfig = require('./webpack.config');
+const webpackConfig = require('./webpack.config.babel');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 
@@ -49,18 +49,20 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Webpack Server
-const webpackCompiler = webpack(webpackConfig);
-app.use(webpackDevMiddleware(webpackCompiler, {
-  publicPath: webpackConfig.output.publicPath,
-  stats: {
-    colors: true,
-    chunks: true,
-    'error-only': true,
-  },
-}));
-app.use(webpackHotMiddleware(webpackCompiler, {
-  log: console.log,
-}));
+if (process.env.NODE_ENV !== 'production') {
+  const webpackCompiler = webpack(webpackConfig);
+  app.use(webpackDevMiddleware(webpackCompiler, {
+    publicPath: webpackConfig.output.publicPath,
+    stats: {
+      colors: true,
+      chunks: true,
+      'error-only': true,
+    },
+  }));
+  app.use(webpackHotMiddleware(webpackCompiler, {
+    log: console.log,
+  }));
+}
 
 app.use('/api', api);
 app.use('/api/users', users);
